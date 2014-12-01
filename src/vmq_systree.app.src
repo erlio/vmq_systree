@@ -1,0 +1,34 @@
+{application, vmq_systree,
+ [
+  {description, ""},
+  {vsn, git},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { vmq_systree_app, []}},
+  {env, [
+        {registry_mfa, {vmq_reg, direct_plugin_exports, [vmq_systree]}},
+        {server_utils, vmq_server_utils},
+        {interval, 10},
+        {vmq_plugin_hooks, [
+            {vmq_systree, incr_bytes_received, 1},
+            {vmq_systree, incr_bytes_sent, 1},
+            {vmq_systree, incr_inactive_clients, 0},
+            {vmq_systree, decr_inactive_clients, 0},
+            {vmq_systree, incr_expired_clients, 0},
+            {vmq_systree, incr_messages_received, 1},
+            {vmq_systree, incr_messages_sent, 1},
+            {vmq_systree, incr_publishes_dropped, 1},
+            {vmq_systree, incr_publishes_received, 1},
+            {vmq_systree, incr_publishes_sent, 1},
+            {vmq_systree, incr_subscription_count, 0},
+            {vmq_systree, decr_subscription_count, 0},
+            {vmq_systree, incr_socket_count, 0},
+            {vmq_systree, incr_connect_received, 0}
+            
+        ]}
+
+    ]}
+ ]}.
