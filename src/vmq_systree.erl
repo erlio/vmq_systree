@@ -18,7 +18,7 @@
 
 %% API
 -export([start_link/0,
-         change_config_now/3,
+         change_config/1,
          summary/0]).
 
 -export([incr_bytes_received/1,
@@ -60,12 +60,17 @@
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
--spec change_config_now(_, [any()], _) -> 'ok'.
-change_config_now(_New, Changed, _Deleted) ->
-    %% we are only interested if the config changes
-    {_, NewInterval} = proplists:get_value(sys_interval,
-                                           Changed, {undefined,10}),
-    gen_server:cast(?MODULE, {new_interval, NewInterval}).
+change_config(Config) ->
+    case lists:keyfind(vmq_systree, 1, application:which_applications()) of
+        false ->
+            %% vmq_systree app is loaded but not started
+            ok;
+        _ ->
+            %% vmq_systree app is not started
+            {vmq_systree, SystreeConfig} = lists:keyfind(vmq_systree, 1, Config),
+            NewInterval = proplists:get_value(interval, SystreeConfig, 10),
+            gen_server:cast(?MODULE, {new_interval, NewInterval})
+    end.
 
 incr_bytes_received(V) ->
     incr_item(local_bytes_received, V).
