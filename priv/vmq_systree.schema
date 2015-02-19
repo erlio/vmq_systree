@@ -4,7 +4,7 @@
 %% @doc The integer number of seconds between updates of the $SYS subscription hierarchy, 
 %% which provides status information about the broker. If unset, defaults to 10 seconds. 
 %% Set to 0 to disable publishing the $SYS hierarchy completely.
-{mapping, "sys_interval", "vmq_systree.interval", [
-                                                   {default, 10},
-                                                   {datatype, integer}
-                                                  ]}.
+{mapping, "sys_interval", "vmq_systree.sys_interval", [
+                                                       {default, 10},
+                                                       {datatype, integer}
+                                                      ]}.
