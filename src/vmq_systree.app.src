@@ -13,9 +13,7 @@
         {sys_interval, 15}, % in seconds
         {vmq_config_enabled, true},
         {vmq_plugin_hooks, [
-            {vmq_systree, change_config, 1}
-            
+            {vmq_systree, change_config, 1, [internal]}
         ]}
-
     ]}
  ]}.
