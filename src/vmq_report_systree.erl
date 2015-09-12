@@ -33,7 +33,9 @@
 -include_lib("exometer_core/include/exometer.hrl").
 
 -record(st, {
-          publish_fun}).
+          publish_fun,
+          prefix=[<<"$SYS">>, list_to_binary(atom_to_list(node()))]
+         }).
 
 
 %% Probe callbacks
@@ -50,10 +52,10 @@ exometer_init(Opts) ->
             E
     end.
 
-exometer_report(Probe, DataPoint, _Extra, Value, #st{publish_fun=PubFun} = St) ->
-    Name = name(Probe, DataPoint),
+exometer_report(Probe, DataPoint, _Extra, Value, #st{prefix=Prefix, publish_fun=PubFun} = St) ->
+    Name = name(Prefix, Probe, DataPoint),
     BValue = value(Value),
-    PubFun(lists:flatten(["$SYS/", atom_to_list(node()), "/", Name]), BValue),
+    PubFun(Name, BValue),
     {ok, St}.
 
 exometer_subscribe(_Metric, _DataPoint, _Extra, _Interval, St) ->
@@ -84,19 +86,18 @@ exometer_terminate(_, _) ->
     ignore.
 
 %% Add probe and datapoint within probe
-name(Probe, DataPoint) ->
-    [[[metric_elem_to_list(I), $/] || I <- Probe], datapoint(DataPoint)].
+name(Prefix, Probe, DataPoint) ->
+    lists:flatten([Prefix, [[metric_elem_to_binary(I), $/] || I <- Probe], datapoint(DataPoint)]).
 
-metric_elem_to_list(V) when is_atom(V) -> atom_to_list(V);
-metric_elem_to_list(V) when is_binary(V) -> binary_to_list(V);
-metric_elem_to_list(V) when is_integer(V) -> integer_to_list(V);
-metric_elem_to_list(V) when is_list(V) -> V.
+metric_elem_to_binary(V) when is_atom(V) -> list_to_binary(atom_to_list(V));
+metric_elem_to_binary(V) when is_binary(V) -> V;
+metric_elem_to_binary(V) when is_integer(V) -> integer_to_binary(V);
+metric_elem_to_binary(V) when is_list(V) -> list_to_binary(V).
 
-datapoint(V) when is_integer(V) -> integer_to_list(V);
-datapoint(V) when is_atom(V) -> atom_to_list(V).
+datapoint(V) when is_integer(V) -> integer_to_binary(V);
+datapoint(V) when is_atom(V) -> list_to_binary(atom_to_list(V)).
 
-%% Add value, int or float, converted to list
+%% Add value, int or float, converted to binary
 value(V) when is_integer(V) -> integer_to_binary(V);
 value(V) when is_float(V)   -> float_to_binary(V);
-value(_) -> 0.
-
+value(_) -> integer_to_binary(0).
