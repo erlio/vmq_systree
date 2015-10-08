@@ -87,7 +87,7 @@ exometer_terminate(_, _) ->
 
 %% Add probe and datapoint within probe
 name(Prefix, Probe, DataPoint) ->
-    lists:flatten([Prefix, [[metric_elem_to_binary(I), $/] || I <- Probe], datapoint(DataPoint)]).
+    lists:flatten([Prefix, [metric_elem_to_binary(I) || I <- Probe], datapoint(DataPoint)]).
 
 metric_elem_to_binary(V) when is_atom(V) -> list_to_binary(atom_to_list(V));
 metric_elem_to_binary(V) when is_binary(V) -> V;
