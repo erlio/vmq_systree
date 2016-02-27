@@ -44,7 +44,7 @@ exometer_init(Opts) ->
     {ok, {M, F, A}} = application:get_env(vmq_systree, registry_mfa),
     {RegisterFun, PublishFun, _SubscribeFun} = apply(M,F,A),
     true = is_function(RegisterFun, 0),
-    true = is_function(PublishFun, 2),
+    true = is_function(PublishFun, 3),
     case RegisterFun() of
         ok ->
             {ok, #st{publish_fun=PublishFun}};
@@ -52,10 +52,11 @@ exometer_init(Opts) ->
             E
     end.
 
-exometer_report(Probe, DataPoint, _Extra, Value, #st{prefix=Prefix, publish_fun=PubFun} = St) ->
+exometer_report(Probe, DataPoint, _Extra, Value, #st{prefix=Prefix,
+                                                     publish_fun=PublishFun} = St) ->
     Name = name(Prefix, Probe, DataPoint),
     BValue = value(Value),
-    PubFun(Name, BValue),
+    PublishFun(Name, BValue, #{}),
     {ok, St}.
 
 exometer_subscribe(_Metric, _DataPoint, _Extra, _Interval, St) ->
